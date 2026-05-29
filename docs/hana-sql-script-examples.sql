@@ -1,0 +1,47 @@
+-- HANA SQL Script Examples
+-- These examples are learning notes related to the Mini SAP UI5 HANA Material App.
+
+-- Material table idea
+CREATE COLUMN TABLE MATERIALS (
+    ID INTEGER PRIMARY KEY,
+    MATERIAL_NUMBER NVARCHAR(50) NOT NULL,
+    NAME NVARCHAR(255) NOT NULL,
+    UNIT NVARCHAR(10) NOT NULL,
+    CURRENT_STOCK INTEGER,
+    MINIMUM_STOCK INTEGER
+);
+
+-- Select all materials
+SELECT
+    ID,
+    MATERIAL_NUMBER,
+    NAME,
+    UNIT,
+    CURRENT_STOCK,
+    MINIMUM_STOCK
+FROM MATERIALS;
+
+-- Low stock query
+SELECT
+    ID,
+    MATERIAL_NUMBER,
+    NAME,
+    UNIT,
+    CURRENT_STOCK,
+    MINIMUM_STOCK
+FROM MATERIALS
+WHERE CURRENT_STOCK <= MINIMUM_STOCK;
+
+-- Calculated stock status
+SELECT
+    ID,
+    MATERIAL_NUMBER,
+    NAME,
+    UNIT,
+    CURRENT_STOCK,
+    MINIMUM_STOCK,
+    CASE
+        WHEN CURRENT_STOCK <= MINIMUM_STOCK THEN 'LOW_STOCK'
+        ELSE 'OK'
+    END AS STOCK_STATUS
+FROM MATERIALS;
