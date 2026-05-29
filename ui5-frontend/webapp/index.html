@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mini SAP UI5 HANA Material App</title>
+
+    <!-- SAP UI5 Bootstrap fuer Lernzwecke -->
+    <script
+        id="sap-ui-bootstrap"
+        src="https://ui5.sap.com/resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_horizon"
+        data-sap-ui-libs="sap.m"
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-async="true">
+    </script>
+
+    <script>
+        sap.ui.getCore().attachInit(function () {
+
+            // JSON Model fuer Materialdaten
+            var oModel = new sap.ui.model.json.JSONModel();
+
+            // OData-style REST API vom Spring Boot Backend laden
+            oModel.loadData("http://localhost:8081/api/odata/materials");
+
+            // Tabelle im SAP UI5 / Fiori-Stil
+            var oTable = new sap.m.Table({
+                headerText: "Material Stock Overview",
+                columns: [
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "ID" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Material Number" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Material Name" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Unit" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Current Stock" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Minimum Stock" })
+                    }),
+                    new sap.m.Column({
+                        header: new sap.m.Text({ text: "Status" })
+                    })
+                ]
+            });
+
+            // Tabelle mit Daten aus dem Backend verbinden
+            oTable.setModel(oModel);
+            oTable.bindItems({
+                path: "/",
+                template: new sap.m.ColumnListItem({
+                    cells: [
+                        new sap.m.Text({ text: "{id}" }),
+                        new sap.m.Text({ text: "{materialNumber}" }),
+                        new sap.m.Text({ text: "{name}" }),
+                        new sap.m.Text({ text: "{unit}" }),
+                        new sap.m.ObjectNumber({ number: "{currentStock}" }),
+                        new sap.m.ObjectNumber({ number: "{minimumStock}" }),
+                        new sap.m.ObjectStatus({
+                            text: {
+                                parts: [
+                                    { path: "currentStock" },
+                                    { path: "minimumStock" }
+                                ],
+                                formatter: function (currentStock, minimumStock) {
+                                    return currentStock <= minimumStock ? "Low Stock" : "OK";
+                                }
+                            },
+                            state: {
+                                parts: [
+                                    { path: "currentStock" },
+                                    { path: "minimumStock" }
+                                ],
+                                formatter: function (currentStock, minimumStock) {
+                                    return currentStock <= minimumStock ? "Warning" : "Success";
+                                }
+                            }
+                        })
+                    ]
+                })
+            });
+
+            // Refresh Button
+            var oRefreshButton = new sap.m.Button({
+                text: "Refresh",
+                type: "Emphasized",
+                press: function () {
+                    oModel.loadData("http://localhost:8081/api/odata/materials");
+                    sap.m.MessageToast.show("Materialdaten wurden neu geladen");
+                }
+            });
+
+            // Low Stock Button
+            var oLowStockButton = new sap.m.Button({
+                text: "Show Low Stock",
+                press: function () {
+                    oModel.loadData("http://localhost:8081/api/odata/materials/low-stock");
+                    sap.m.MessageToast.show("Low-Stock Materialien geladen");
+                }
+            });
+
+            // Seite erstellen
+            var oPage = new sap.m.Page({
+                title: "Mini SAP UI5 HANA Material App",
+                content: [
+                    new sap.m.VBox({
+                        items: [
+                            new sap.m.Title({
+                                text: "SAP UI5 / Fiori Material Overview",
+                                level: "H2"
+                            }),
+                            new sap.m.Text({
+                                text: "This SAP UI5 frontend consumes an OData-style Spring Boot API."
+                            }),
+                            new sap.m.HBox({
+                                items: [
+                                    oRefreshButton,
+                                    oLowStockButton
+                                ]
+                            }).addStyleClass("sapUiSmallMarginTop"),
+                            oTable
+                        ]
+                    }).addStyleClass("sapUiSmallMargin")
+                ]
+            });
+
+            var oApp = new sap.m.App({
+                pages: [oPage]
+            });
+
+            oApp.placeAt("content");
+        });
+    </script>
+</head>
+
+<body class="sapUiBody">
+    <div id="content"></div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<mvc:View
+    controllerName="mini.sap.material.controller.App"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+    <Page title="Mini SAP UI5 HANA Material App">
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <Title
+                    text="Material Stock Overview"
+                    level="H2" />
+
+                <Text
+                    text="SAP UI5 frontend connected to a Spring Boot OData-style backend." />
+
+                <HBox class="sapUiSmallMarginTop">
+                    <Button
+                        text="Refresh"
+                        press=".onRefresh"
+                        type="Emphasized" />
+
+                    <Button
+                        text="Show Low Stock"
+                        press=".onShowLowStock"
+                        class="sapUiTinyMarginBegin" />
+                </HBox>
+
+                <Table
+                    items="{materials>/}"
+                    class="sapUiSmallMarginTop">
+
+                    <columns>
+                        <Column>
+                            <Text text="ID" />
+                        </Column>
+                        <Column>
+                            <Text text="Material Number" />
+                        </Column>
+                        <Column>
+                            <Text text="Material Name" />
+                        </Column>
+                        <Column>
+                            <Text text="Unit" />
+                        </Column>
+                        <Column>
+                            <Text text="Current Stock" />
+                        </Column>
+                        <Column>
+                            <Text text="Minimum Stock" />
+                        </Column>
+                        <Column>
+                            <Text text="Status" />
+                        </Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{materials>id}" />
+                                <Text text="{materials>materialNumber}" />
+                                <Text text="{materials>name}" />
+                                <Text text="{materials>unit}" />
+                                <ObjectNumber number="{materials>currentStock}" />
+                                <ObjectNumber number="{materials>minimumStock}" />
+                                <ObjectStatus
+                                    text="{
+                                        parts: [
+                                            {path: 'materials>currentStock'},
+                                            {path: 'materials>minimumStock'}
+                                        ],
+                                        formatter: '.formatStatusText'
+                                    }"
+                                    state="{
+                                        parts: [
+                                            {path: 'materials>currentStock'},
+                                            {path: 'materials>minimumStock'}
+                                        ],
+                                        formatter: '.formatStatusState'
+                                    }" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
